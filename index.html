@@ -3,20 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
     <title>Генератор слов</title>
 </head>
 <body>
-    <h1>Генератор слов из заданного набора букв</h1>
-    <div class="input-container">
-        <label for="letters">Введите набор букв:</label>
-        <input type="text" id="letters" placeholder="Например, абвгде">
-        <button id="generate-button">Генерировать</button>
-    </div>
+
+    <h1>Генератор слов</h1>
+
+    <label for="inputLetters">Введите буквы:</label>
+    <input type="text" id="inputLetters" placeholder="Например, командир" />
+    <button onclick="generateWords()">Сгенерировать слова</button>
+
     <div id="output">
-        <h2>Сгенерированные слова:</h2>
-        <ul id="word-list"></ul>
+        <!-- Здесь будут отображаться сгенерированные слова -->
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Логика для чтения файла и генерации слов на стороне клиента
+        // Например, использование Fetch API для загрузки данных
+
+        function generateWords() {
+            const inputLetters = document.getElementById('inputLetters').value;
+
+            // Загрузка данных из файла
+            fetch('russian_nouns.txt')
+                .then(response => response.text())
+                .then(data => {
+                    const wordsArray = data.split('\n').map(word => word.trim());
+                    const possibleWords = generateWords(inputLetters, wordsArray);
+
+                    displayResults(possibleWords);
+                })
+                .catch(error => console.error('Ошибка загрузки файла:', error));
+        }
+
+        function isWordPossible(word, letters) {
+            const wordLetters = word.split('');
+            const tempLetters = letters.split('');
+
+            for (const letter of wordLetters) {
+                const index = tempLetters.indexOf(letter);
+                if (index !== -1) {
+                    tempLetters.splice(index, 1);
+                } else {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function generateWords(letters, arrayOfWords) {
+            return arrayOfWords.filter(word => isWordPossible(word, letters));
+        }
+
+        function displayResults(possibleWords) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '<h2>Слова, которые можно составить из введенной строки букв:</h2>';
+            outputDiv.innerHTML += '<ul>';
+            possibleWords.forEach(word => {
+                outputDiv.innerHTML += `<li>${word}</li>`;
+            });
+            outputDiv.innerHTML += '</ul>';
+        }
+    </script>
+
 </body>
 </html>
+
